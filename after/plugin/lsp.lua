@@ -1,4 +1,4 @@
-local on_attach = function(_, bufnr)
+local on_attach = function(client, bufnr)
 	local bufmap = function(keys, func)
 		vim.keymap.set('n', keys, func, { buffer = bufnr })
 	end
@@ -14,10 +14,6 @@ local on_attach = function(_, bufnr)
 	bufmap('gr', require('telescope.builtin').lsp_references)
 	bufmap('<leader>s', require('telescope.builtin').lsp_document_symbols)
 	bufmap('<leader>S', require('telescope.builtin').lsp_dynamic_workspace_symbols)
-	bufmap('<leader>ff', require('telescope.builtin').find_files)
-	bufmap('<leader>fg', require('telescope.builtin').live_grep)
-	bufmap('<leader>fb', require('telescope.builtin').buffers)
-	bufmap('<leader>fh', require('telescope.builtin').help_tags)
 
 	bufmap('K', vim.lsp.buf.hover)
 
@@ -25,6 +21,12 @@ local on_attach = function(_, bufnr)
 		vim.lsp.buf.format()
 	end, {})
 	bufmap('<C-f>', ':Format<CR>')
+
+	vim.api.nvim_create_autocmd("BufWritePre", {
+		callback = function()
+			vim.lsp.buf.format({ async = false })
+		end
+	})
 end
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
